@@ -1,48 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        #searchBox {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-        .highlight {
-            background-color: yellow;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    #searchBox {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    .highlight {
+      background-color: yellow;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
 
-    <h2>Search Within This Page</h2>
-    <input type="text" id="searchBox" placeholder="Type your query and press Enter">
-    <p>(Matches will be highlighted after you press Enter)</p>
+  <h2>Search Within This Page</h2>
+  <input type="text" id="searchBox" placeholder="Type your query and press Enter">
+  <p>(Matches will be highlighted after you press Enter. You can enter multiple queries.)</p>
 
-    <script>
-        document.getElementById('searchBox').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') { // Only search when Enter is pressed
-                event.preventDefault();
-                let searchQuery = this.value.trim().toLowerCase();
+  <div id="content">
+    <p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque metus odio, 
+      lacinia a diam nec, fringilla egestas ante. Curabitur viverra lorem quis arcu 
+      ornare scelerisque. In hac habitasse platea dictumst.
+    </p>
+    <p>
+      Cras sagittis, tortor non interdum consequat, velit sapien convallis massa, 
+      eget pharetra turpis justo quis arcu. Nulla nec arcu vitae magna vehicula 
+      vestibulum eget et nulla.
+    </p>
+  </div>
 
-                if (searchQuery.length > 0) {
-                    let pageContent = document.body.innerHTML.replace(/<span class="highlight">(.*?)<\/span>/g, "$1"); // Remove old highlights
-                    document.body.innerHTML = pageContent;
+  <script>
+    // Store original content so we can always revert before re-highlighting
+    const contentEl = document.getElementById('content');
+    const originalContent = contentEl.innerHTML;
 
-                    let regex = new RegExp(searchQuery, "gi");
-                    document.body.innerHTML = document.body.innerHTML.replace(regex, match => `<span class="highlight">${match}</span>`);
-                }
-            }
-        });
-    </script>
+    // This will hold all the queries entered so far
+    const queries = [];
 
+    document.getElementById('searchBox').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault(); // Prevent form submission or page reload
+        const searchQuery = this.value.trim();
+        
+        // Only do something if there's actually text
+        if (searchQuery.length > 0) {
+          // Add the new query to our list of queries
+          queries.push(searchQuery);
+
+          // Clear the input field if you want to start fresh each time
+          this.value = '';
+
+          // Re-apply highlights for all queries
+          highlightAllQueries();
+        }
+      }
+    });
+
+    function highlightAllQueries() {
+      // Step 1: restore the original HTML to remove any old highlights
+      contentEl.innerHTML = originalContent;
+
+      // Step 2: highlight each query in the queries array
+      queries.forEach(query => {
+        highlightQuery(query);
+      });
+    }
+
+    function highlightQuery(query) {
+      // Use a case-insensitive regular expression
+      const regex = new RegExp(query, 'gi');
+
+      // Replace matched text with a highlight <span>
+      contentEl.innerHTML = contentEl.innerHTML.replace(regex, (match) => {
+        return `<span class="highlight">${match}</span>`;
+      });
+    }
+  </script>
 </body>
 </html>
